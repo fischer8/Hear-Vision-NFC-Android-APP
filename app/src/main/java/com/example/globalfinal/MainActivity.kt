@@ -32,14 +32,11 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
-        Log.d(TAG, "onCreate Called")
         nfcAdapter = NfcAdapter.getDefaultAdapter(this)
-        Log.d(TAG, "${nfcAdapter}")
 
     }
     override fun onResume() {
         super.onResume()
-        Log.d(TAG, "2NFC CREATE INSTANCE")
         val intent = Intent(this, javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE)
         val techList = arrayOf(arrayOf(NfcAdapter::class.java.name, MifareUltralight::class.java.name))
@@ -48,21 +45,17 @@ class MainActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        Log.d(TAG, "10000NFC CREATE INSTANCE")
 
-        Log.d(TAG, "ENTRO NO IF")
         //val tag: Tag? = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)
         val tag: Tag? = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG, Tag::class.java)
-        Log.d(TAG, "tag --------- ${tag}")
         tag?.let {
             val mifare = MifareUltralight.get(it)
-            readFromTag(mifare) // Chamando o método readFromTag corretamente
+            readFromTag(mifare)
         }
 
     }
 
     private fun readFromTag(mifare: MifareUltralight) {
-        Log.d(TAG, "TENTANDO LER SA DISSGRASSA")
         val numPages = 16
         val stringBuilder = StringBuilder()
         try {
