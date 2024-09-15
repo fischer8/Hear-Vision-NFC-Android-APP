@@ -66,6 +66,8 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     override fun onResume() {
         super.onResume()
+        Log.e(TAG, "ON RESUME.")
+
         val intent = Intent(this, javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE)
         val techList = arrayOf(arrayOf(NfcAdapter::class.java.name, MifareUltralight::class.java.name))
@@ -74,7 +76,8 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        val tag: Tag? = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG, Tag::class.java)
+        Log.e(TAG, "ON NEW INTENTA.")
+        val tag = intent.getParcelableExtra<Tag>(NfcAdapter.EXTRA_TAG)
         tag?.let {
             val mifare = MifareUltralight.get(it)
             readFromTag(mifare)
@@ -82,6 +85,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     private fun readFromTag(mifare: MifareUltralight) {
+        Log.e(TAG, "ON READ FROM TAG.")
         val numPages = 16
         val stringBuilder = StringBuilder()
         try {
