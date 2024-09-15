@@ -1,40 +1,69 @@
 package com.example.globalfinal
 
+
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-
-import android.os.Parcelable
-import android.content.Context
-import android.provider.Settings
-
-import android.app.Activity
+import android.speech.tts.TextToSpeech
+import android.util.Log
+import android.widget.Toast
+import java.util.Locale
+import android.app.PendingIntent
+import android.content.Intent
+import android.nfc.NfcAdapter
+import android.nfc.Tag
 import android.nfc.tech.MifareUltralight
 import java.io.IOException
 
-import android.app.PendingIntent
-import android.content.Intent
-import android.content.IntentFilter
-import android.nfc.NfcAdapter
-import android.nfc.Tag
-import android.nfc.tech.Ndef
-import android.nfc.tech.NfcA
-import android.util.Log
-import android.widget.Toast
-
 private const val TAG = "MainActivity"
-class MainActivity : AppCompatActivity() {
+
+class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
+
     private var nfcAdapter: NfcAdapter? = null
+    private lateinit var tts: TextToSpeech
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
-        nfcAdapter = NfcAdapter.getDefaultAdapter(this)
+        tts = TextToSpeech(this, this)
 
+        nfcAdapter = NfcAdapter.getDefaultAdapter(this)
     }
+
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+
+            val result = tts.setLanguage(Locale("pt", "BR"))
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Log.e(TAG, "Idioma não suportado ou dados ausentes.")
+                Toast.makeText(this, "Idioma não suportado ou dados ausentes.", Toast.LENGTH_LONG).show()
+            } else {
+
+                Log.d(TAG, "TextToSpeech inicializado com sucesso.")
+                speak("Texto para fala inicializado com sucesso!")
+            }
+        } else {
+            Log.e(TAG, "Falha ao inicializar o TextToSpeech.")
+            Toast.makeText(this, "Falha ao inicializar o TextToSpeech.", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun speak(text: String) {
+        if (this::tts.isInitialized) {
+            tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+        } else {
+            Log.e(TAG, "TextToSpeech não está inicializado.")
+        }
+    }
+
+    override fun onDestroy() {
+        if (this::tts.isInitialized) {
+            tts.stop()
+            tts.shutdown()
+        }
+        super.onDestroy()
+    }
+
     override fun onResume() {
         super.onResume()
         val intent = Intent(this, javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
@@ -45,22 +74,18 @@ class MainActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-
-        //val tag: Tag? = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)
         val tag: Tag? = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG, Tag::class.java)
         tag?.let {
             val mifare = MifareUltralight.get(it)
             readFromTag(mifare)
         }
-
     }
 
     private fun readFromTag(mifare: MifareUltralight) {
         val numPages = 16
         val stringBuilder = StringBuilder()
         try {
-            mifare?.connect()
-
+            mifare.connect()
             for (i in 6 until numPages step 4) {
                 val payload = mifare.readPages(i)
                 if (payload != null) {
@@ -71,17 +96,15 @@ class MainActivity : AppCompatActivity() {
                     Log.d(TAG, "Page $i is null")
                 }
             }
-
             val concatenatedData = stringBuilder.toString().trim().drop(1)
             Log.d(TAG, "Concatenated Data: $concatenatedData")
-
-            Toast.makeText(this, "Tag Data: $concatenatedData", Toast.LENGTH_SHORT).show()
-
+            Toast.makeText(this, "Tag Data: $concatenatedData", Toast.LENGTH_LONG).show()
+            speak(concatenatedData)
         } catch (e: IOException) {
             e.printStackTrace()
         } finally {
             try {
-                mifare?.close()
+                mifare.close()
             } catch (e: IOException) {
                 e.printStackTrace()
             }
@@ -95,6 +118,4 @@ class MainActivity : AppCompatActivity() {
     private fun cleanText(data: String): String {
         return data.filter { isPrintableCharacter(it) }
     }
-
-
 }
