@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             } else {
 
                 Log.d(TAG, "TextToSpeech inicializado com sucesso.")
-                speak("Texto para fala inicializado com sucesso!")
+                speak("mãe do renan iniciada!")
             }
         } else {
             Log.e(TAG, "Falha ao inicializar o TextToSpeech.")
