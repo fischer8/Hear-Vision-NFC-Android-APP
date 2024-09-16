@@ -13,6 +13,10 @@ import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.nfc.tech.MifareUltralight
 import java.io.IOException
+import android.widget.Button
+import android.widget.ProgressBar
+import android.view.MotionEvent
+
 
 private const val TAG = "MainActivity"
 
@@ -20,6 +24,9 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private var nfcAdapter: NfcAdapter? = null
     private lateinit var tts: TextToSpeech
+    private var rightBtnPress = false
+    private var leftBtnPress = false
+    private var currentSpeechRate: Float = 1.0f
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,6 +35,69 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         tts = TextToSpeech(this, this)
 
         nfcAdapter = NfcAdapter.getDefaultAdapter(this)
+
+        val rightButton = findViewById<Button>(R.id.rightBtn)
+        val leftButton = findViewById<Button>(R.id.leftBtn)
+
+
+        rightButton.setOnTouchListener { _, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    // Inicia o temporizador quando o botão for pressionado
+                    rightBtnPress = true
+                    rightButton.postDelayed({
+                        if (rightBtnPress) {
+                            increase() // Função chamada após 2 segundos de pressão
+                        }
+                    }, 2000) // 2000 ms = 2 segundos
+                    true
+                }
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    // Cancela o temporizador se o botão for solto antes de 2 segundos
+                    rightBtnPress = false
+                    true
+                }
+                else -> false
+            }
+        }
+
+        leftButton.setOnTouchListener { _, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+
+                    leftBtnPress = true
+                    leftButton.postDelayed({
+                        if (leftBtnPress) {
+                            decrease() // Função chamada após 2 segundos de pressão
+                        }
+                    }, 2000) // 2000 ms = 2 segundos
+                    true
+                }
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    // Cancela o temporizador se o botão for solto antes de 2 segundos
+                    leftBtnPress = false
+                    true
+                }
+                else -> false
+            }
+        }
+
+    }
+
+    private fun increase() {
+        currentSpeechRate += 0.5f
+
+        tts.setSpeechRate(currentSpeechRate)
+        speak("Velocidade aumentada")
+        Toast.makeText(this, "$currentSpeechRate", Toast.LENGTH_LONG).show()
+    }
+
+    private fun decrease() {
+        currentSpeechRate -= 0.5f
+
+        tts.setSpeechRate(currentSpeechRate)
+        speak("Velocidade reduzida")
+        Toast.makeText(this, "$currentSpeechRate", Toast.LENGTH_LONG).show()
     }
 
     override fun onInit(status: Int) {
@@ -83,9 +153,12 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             readFromTag(mifare)
         }
     }
-
+//progressBar
     private fun readFromTag(mifare: MifareUltralight) {
         Log.e(TAG, "ON READ FROM TAG.")
+
+
+
         val numPages = 16
         val stringBuilder = StringBuilder()
         try {
@@ -103,6 +176,8 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             val concatenatedData = stringBuilder.toString().trim().drop(1)
             Log.d(TAG, "Concatenated Data: $concatenatedData")
             Toast.makeText(this, "Tag Data: $concatenatedData", Toast.LENGTH_LONG).show()
+
+
             speak(concatenatedData)
         } catch (e: IOException) {
             e.printStackTrace()
