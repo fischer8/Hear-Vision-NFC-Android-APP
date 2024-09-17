@@ -9,8 +9,8 @@
 
     <Button
         android:id="@+id/rightBtn"
-        android:layout_width="153dp"
-        android:layout_height="604dp"
+        android:layout_width="264dp"
+        android:layout_height="1896dp"
         android:background="@android:color/transparent"
         android:contentDescription="Botão transparente"
         android:text=""
@@ -19,12 +19,12 @@
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="1.0" />
 
     <Button
         android:id="@+id/leftBtn"
-        android:layout_width="153dp"
-        android:layout_height="604dp"
+        android:layout_width="278dp"
+        android:layout_height="1896dp"
         android:background="@android:color/transparent"
         android:contentDescription="Botão transparente"
         android:text=""
