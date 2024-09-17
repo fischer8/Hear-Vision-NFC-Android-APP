@@ -86,19 +86,24 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
     private fun increase() {
-        currentSpeechRate += 0.5f
-        saveSpeechRate(currentSpeechRate)
-        tts.setSpeechRate(currentSpeechRate)
-        speak("Velocidade aumentada")
-        Toast.makeText(this, "$currentSpeechRate", Toast.LENGTH_SHORT).show()
+        if(currentSpeechRate < 4.0f){
+            currentSpeechRate += 0.5f
+            saveSpeechRate(currentSpeechRate)
+            tts.setSpeechRate(currentSpeechRate)
+            speak("Velocidade aumentada")
+            Toast.makeText(this, "$currentSpeechRate", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun decrease() {
-        currentSpeechRate -= 0.5f
-        saveSpeechRate(currentSpeechRate)
-        tts.setSpeechRate(currentSpeechRate)
-        speak("Velocidade reduzida")
-        Toast.makeText(this, "$currentSpeechRate", Toast.LENGTH_SHORT).show()
+        if(currentSpeechRate > 0.5f){
+            currentSpeechRate -= 0.5f
+            saveSpeechRate(currentSpeechRate)
+            tts.setSpeechRate(currentSpeechRate)
+            speak("Velocidade reduzida")
+            Toast.makeText(this, "$currentSpeechRate", Toast.LENGTH_SHORT).show()
+        }
+
     }
 
     override fun onInit(status: Int) {

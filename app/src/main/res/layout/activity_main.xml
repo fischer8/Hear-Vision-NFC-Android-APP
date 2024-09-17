@@ -7,12 +7,14 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+
     <Button
         android:id="@+id/rightBtn"
-        android:layout_width="264dp"
-        android:layout_height="1896dp"
+        android:layout_width="200dp"
+        android:layout_height="0dp"
         android:background="@android:color/transparent"
         android:contentDescription="Botão transparente"
+        android:gravity="fill_vertical"
         android:text=""
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -23,10 +25,11 @@
 
     <Button
         android:id="@+id/leftBtn"
-        android:layout_width="278dp"
-        android:layout_height="1896dp"
+        android:layout_width="200dp"
+        android:layout_height="0dp"
         android:background="@android:color/transparent"
         android:contentDescription="Botão transparente"
+        android:gravity="fill_vertical"
         android:text=""
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
