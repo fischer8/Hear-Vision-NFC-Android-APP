@@ -103,21 +103,16 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             speak("Velocidade reduzida")
             Toast.makeText(this, "$currentSpeechRate", Toast.LENGTH_SHORT).show()
         }
-
     }
 
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
-
-
             val result = tts.setLanguage(Locale("pt", "BR"))
             if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                 Log.e(TAG, "Idioma não suportado ou dados ausentes.")
                 Toast.makeText(this, "Idioma não suportado ou dados ausentes.", Toast.LENGTH_LONG).show()
             } else {
-
                 Log.d(TAG, "TextToSpeech inicializado com sucesso.")
-                speak("mãe do renan iniciada!")
             }
         } else {
             Log.e(TAG, "Falha ao inicializar o TextToSpeech.")
@@ -144,7 +139,6 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     override fun onResume() {
         super.onResume()
         Log.e(TAG, "ON RESUME.")
-
         val intent = Intent(this, javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE)
         val techList = arrayOf(arrayOf(NfcAdapter::class.java.name, MifareUltralight::class.java.name))
@@ -163,9 +157,6 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 //progressBar
     private fun readFromTag(mifare: MifareUltralight) {
         Log.e(TAG, "ON READ FROM TAG.")
-
-
-
         val numPages = 16
         val stringBuilder = StringBuilder()
         try {
@@ -183,8 +174,6 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             val concatenatedData = stringBuilder.toString().trim().drop(1)
             Log.d(TAG, "Concatenated Data: $concatenatedData")
             Toast.makeText(this, "Tag Data: $concatenatedData", Toast.LENGTH_SHORT).show()
-
-
             speak(concatenatedData)
         } catch (e: IOException) {
             e.printStackTrace()
