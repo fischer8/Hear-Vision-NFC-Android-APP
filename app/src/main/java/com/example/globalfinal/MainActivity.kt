@@ -11,6 +11,9 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.nfc.NfcAdapter
 import android.nfc.Tag
+import android.nfc.NdefRecord
+import android.nfc.NdefMessage
+import android.nfc.tech.Ndef
 import android.nfc.tech.MifareUltralight
 import java.io.IOException
 import android.widget.Button
@@ -144,18 +147,71 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         val techList = arrayOf(arrayOf(NfcAdapter::class.java.name, MifareUltralight::class.java.name))
         nfcAdapter?.enableForegroundDispatch(this, pendingIntent, null, techList)
     }
-
+/*
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         Log.e(TAG, "ON NEW INTENTA.")
+            val tag = intent.getParcelableExtra<Tag>(NfcAdapter.EXTRA_TAG)
+            tag?.let {
+                val mifare = MifareUltralight.get(it)
+                readFromTag(mifare)
+            }
+    }*/
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        Log.e(TAG, "ON NEW INTENT")
+
         val tag = intent.getParcelableExtra<Tag>(NfcAdapter.EXTRA_TAG)
         tag?.let {
-            val mifare = MifareUltralight.get(it)
-            readFromTag(mifare)
+            val ndef = Ndef.get(it)
+            if (ndef != null) {
+                readFromNdef(ndef)
+            } else {
+                val mifare = MifareUltralight.get(it)
+                if (mifare != null) {
+                    readFromMifare(mifare)
+                } else {
+                    Toast.makeText(this, "Tag não suportada.", Toast.LENGTH_SHORT).show()
+                    Log.e(TAG, "A tag não é NDEF nem MifareUltralight.")
+                }
+            }
         }
     }
-//progressBar
-    private fun readFromTag(mifare: MifareUltralight) {
+
+    private fun readFromNdef(ndef: Ndef) {
+        Log.d(TAG, "Lendo dados da tag em modo NDEF.")
+        try {
+            ndef.connect()
+            val ndefMessage = ndef.cachedNdefMessage
+            if (ndefMessage != null) {
+                val records = ndefMessage.records
+                val stringBuilder = StringBuilder()
+                for (record in records) {
+                    val payload = String(record.payload, Charsets.UTF_8)
+                    val cleanPayload = cleanText(payload)
+                    stringBuilder.append(cleanPayload)
+                }
+                val concatenatedData = stringBuilder.toString().trim().drop(3)
+                Log.d(TAG, "Dados NDEF concatenados: $concatenatedData")
+                Toast.makeText(this, "Dados NDEF: $concatenatedData", Toast.LENGTH_SHORT).show()
+                speak(concatenatedData)
+            } else {
+                Log.d(TAG, "A mensagem NDEF está vazia.")
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+        } finally {
+            try {
+                ndef.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    //progressBar
+    private fun readFromMifare(mifare: MifareUltralight) {
         Log.e(TAG, "ON READ FROM TAG.")
         val numPages = 16
         val stringBuilder = StringBuilder()
